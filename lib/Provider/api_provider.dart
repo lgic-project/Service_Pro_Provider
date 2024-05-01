@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:html';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -31,7 +30,7 @@ class ApiProvider with ChangeNotifier {
         final data = jsonDecode(response.body);
         _token = data['data']['token'];
         final role = data['data']['Role'];
-        if (role == 'provider') {
+        if (role == 'Provider') {
           await _storeToken(_token);
           _isLoggedIn = true;
         } else {
