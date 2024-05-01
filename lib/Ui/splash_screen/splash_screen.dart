@@ -1,13 +1,12 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:service_provide_app/login_signup/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'package:service_pro_provider/Provider/api_provider.dart';
+import 'package:service_pro_provider/Ui/login_signup/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-
   @override
-  // ignore: library_private_types_in_public_api
   _SplashScreenState createState() => _SplashScreenState();
 }
 
@@ -15,12 +14,22 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Navigate to the home screen after 3 seconds
+    checkUserLoggedIn();
+  }
+
+  Future<void> checkUserLoggedIn() async {
+    final apiProvider = Provider.of<ApiProvider>(context, listen: false);
+    await apiProvider.autoLogin();
+
     Timer(Duration(seconds: 3), () {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => LoginScreen()),
-      );
+      if (apiProvider.isLoggedIn) {
+        Navigator.pushReplacementNamed(context, '/dashboard');
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      }
     });
   }
 
@@ -31,8 +40,8 @@ class _SplashScreenState extends State<SplashScreen> {
       statusBarColor: Colors.transparent,
     ));
 
-    return const Scaffold(
-      backgroundColor: Color(0xFF26C6DA), // Blue color
+    return Scaffold(
+      backgroundColor: Color(0xFF4A90E2), // Blue color
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
