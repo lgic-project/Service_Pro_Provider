@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Provider/api_provider.dart';
 import 'package:service_pro_provider/Ui/home_screen.dart/home_screen.dart';
+import 'package:service_pro_provider/Ui/login_signup/login_screen.dart';
 import 'package:service_pro_provider/Ui/splash_screen/splash_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,12 +27,13 @@ class _MyAppState extends State<MyApp> {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          primarySwatch: Colors.teal,
+          primaryColor: Colors.teal,
         ),
         initialRoute: '/',
         routes: {
           '/': (context) => SplashScreen(),
           '/dashboard': (context) => const HomeScreen(),
+          '/login': (context) => const LoginScreen(),
         },
       ),
     );

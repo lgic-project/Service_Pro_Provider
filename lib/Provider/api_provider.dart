@@ -17,7 +17,7 @@ class ApiProvider with ChangeNotifier {
 
     try {
       final response = await http.post(
-        Uri.parse('http://10.0.2.2:8000/user/login'),
+        Uri.parse('http://192.168.1.68:8000/user/login'),
         body: jsonEncode({
           'Email': email,
           'Password': password,
@@ -42,6 +42,17 @@ class ApiProvider with ChangeNotifier {
       _isLoggedIn = false;
     } finally {
       _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> logOut() async {
+    final prefs = await SharedPreferences.getInstance();
+    _token = prefs.getString('token') ?? '';
+    if (_token.isNotEmpty) {
+      await prefs.remove('token');
+      _token = '';
+      _isLoggedIn = false;
       notifyListeners();
     }
   }
