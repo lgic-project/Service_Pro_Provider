@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/api_provider.dart';
+import 'package:service_pro_provider/Provider/user_provider.dart';
 import 'package:service_pro_provider/Ui/login_signup/signup.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ApiProvider>(context);
+    final apiProvider = Provider.of<UserProvider>(context);
 
     return Scaffold(
       appBar: AppBar(

@@ -3,11 +3,12 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ApiProvider with ChangeNotifier {
+class UserProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _isLoggedIn = false;
   String _token = '';
 
+  String get token => _token;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
 
@@ -17,7 +18,7 @@ class ApiProvider with ChangeNotifier {
 
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.1.68:8000/user/login'),
+        Uri.parse('http://20.52.185.247:8000/user/login'),
         body: jsonEncode({
           'Email': email,
           'Password': password,

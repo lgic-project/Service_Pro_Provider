@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/api_provider.dart';
+import 'package:service_pro_provider/Provider/user_provider.dart';
 
 class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<ApiProvider>(context);
+    final apiProvider = Provider.of<UserProvider>(context);
 
     return SafeArea(
       child: SingleChildScrollView(
