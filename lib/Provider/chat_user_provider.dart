@@ -9,7 +9,7 @@ class ChatUserProvider with ChangeNotifier {
   List<dynamic> users = [];
 
   Future<void> getChatUser(BuildContext context) async {
-    final token = Provider.of<UserProvider>(context, listen: false).token;
+    final token = Provider.of<LoginLogoutProvider>(context, listen: false).token;
     print('token : $token');
     final response = await http
         .get(Uri.parse('http://20.52.185.247:8000/message/userList'), headers: {
