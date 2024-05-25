@@ -18,7 +18,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkUserLoggedIn() async {
-    final apiProvider = Provider.of<UserProvider>(context, listen: false);
+    final apiProvider = Provider.of<LoginLogoutProvider>(context, listen: false);
     await apiProvider.autoLogin();
 
     Timer(Duration(seconds: 3), () {

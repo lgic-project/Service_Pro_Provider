@@ -18,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<UserProvider>(context);
+    final apiProvider = Provider.of<LoginLogoutProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
