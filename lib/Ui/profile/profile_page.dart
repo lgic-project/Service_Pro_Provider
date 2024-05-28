@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/user_provider.dart';
+import '../../Provider/profile_provider.dart';
+import '../../Provider/login_logout_provider.dart';
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
+  @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<ProfileProvider>(context, listen: false).userProfile(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final apiProvider = Provider.of<UserProvider>(context);
+    final userProvider = Provider.of<LoginLogoutProvider>(context);
 
     return SafeArea(
       child: SingleChildScrollView(
-        child: Column(
+          child: Consumer<ProfileProvider>(builder: (context, profile, child) {
+        var user = profile.data;
+        final profilePic = (user['Image'] ??
+            'https://dudewipes.com/cdn/shop/articles/gigachad.jpg?v=1667928905&width=2048');
+        return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
@@ -21,16 +37,16 @@ class ProfilePage extends StatelessWidget {
                   colors: [Colors.white, Colors.white],
                 ),
               ),
-              child: const Column(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: AssetImage('assets/user.png'),
+                    backgroundImage: NetworkImage(profilePic.toString()),
                   ),
                   SizedBox(height: 10),
                   Text(
-                    'John Doe',
+                    user['Name'] ?? 'User Name',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
@@ -38,7 +54,7 @@ class ProfilePage extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'john.doe@example.com',
+                    user['Email'] ?? 'User Email',
                     style: TextStyle(
                       fontSize: 16,
                       color: Colors.black,
@@ -52,62 +68,62 @@ class ProfilePage extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ListTile(
-                    leading: const Icon(Icons.key),
-                    title: TextButton(
-                      onPressed: () {
-                        // TODO: Implement change password functionality
-                        showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: const Text('Change Password'),
-                              content: const Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  TextField(
-                                    decoration: InputDecoration(
-                                      labelText: 'Current Password',
-                                    ),
-                                  ),
-                                  TextField(
-                                    decoration: InputDecoration(
-                                      labelText: 'New Password',
-                                    ),
-                                  ),
-                                  TextField(
-                                    decoration: InputDecoration(
-                                      labelText: 'Retype New Password',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              actions: [
-                                TextButton(
-                                  onPressed: () {
-                                    // TODO: Save password changes
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Save'),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    // TODO: Discard password changes
-                                    Navigator.pop(context);
-                                  },
-                                  child: const Text('Discard'),
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                      },
-                      child: const Text(
-                        'Change Password',
-                        style: TextStyle(fontSize: 20, color: Colors.black),
-                      ),
-                    ),
-                  ),
+                  // ListTile(
+                  //   leading: const Icon(Icons.key),
+                  //   title: TextButton(
+                  //     onPressed: () {
+                  //       // TODO: Implement change password functionality
+                  //       showDialog(
+                  //         context: context,
+                  //         builder: (BuildContext context) {
+                  //           return AlertDialog(
+                  //             title: const Text('Change Password'),
+                  //             content: const Column(
+                  //               mainAxisSize: MainAxisSize.min,
+                  //               children: [
+                  //                 TextField(
+                  //                   decoration: InputDecoration(
+                  //                     labelText: 'Current Password',
+                  //                   ),
+                  //                 ),
+                  //                 TextField(
+                  //                   decoration: InputDecoration(
+                  //                     labelText: 'New Password',
+                  //                   ),
+                  //                 ),
+                  //                 TextField(
+                  //                   decoration: InputDecoration(
+                  //                     labelText: 'Retype New Password',
+                  //                   ),
+                  //                 ),
+                  //               ],
+                  //             ),
+                  //             actions: [
+                  //               TextButton(
+                  //                 onPressed: () {
+                  //                   // TODO: Save password changes
+                  //                   Navigator.pop(context);
+                  //                 },
+                  //                 child: const Text('Save'),
+                  //               ),
+                  //               TextButton(
+                  //                 onPressed: () {
+                  //                   // TODO: Discard password changes
+                  //                   Navigator.pop(context);
+                  //                 },
+                  //                 child: const Text('Discard'),
+                  //               ),
+                  //             ],
+                  //           );
+                  //         },
+                  //       );
+                  //     },
+                  //     child: const Text(
+                  //       'Change Password',
+                  //       style: TextStyle(fontSize: 20, color: Colors.black),
+                  //     ),
+                  //   ),
+                  // ),
                   ListTile(
                     leading: const Icon(Icons.logout),
                     title: TextButton(
@@ -129,7 +145,7 @@ class ProfilePage extends StatelessWidget {
                                 ),
                                 TextButton(
                                   onPressed: () {
-                                    apiProvider.logOut();
+                                    userProvider.logOut();
                                     Navigator.pushReplacementNamed(
                                         context, '/login');
                                   },
@@ -150,8 +166,8 @@ class ProfilePage extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ),
+        );
+      })),
     );
   }
 }

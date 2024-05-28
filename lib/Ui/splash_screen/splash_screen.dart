@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/user_provider.dart';
+import 'package:service_pro_provider/Provider/login_logout_provider.dart';
 import 'package:service_pro_provider/Ui/login_signup/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -18,7 +18,8 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkUserLoggedIn() async {
-    final apiProvider = Provider.of<UserProvider>(context, listen: false);
+    final apiProvider =
+        Provider.of<LoginLogoutProvider>(context, listen: false);
     await apiProvider.autoLogin();
 
     Timer(Duration(seconds: 3), () {
