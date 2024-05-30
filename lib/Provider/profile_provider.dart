@@ -23,6 +23,7 @@ class ProfileProvider with ChangeNotifier {
         if (response.statusCode == 200) {
           print('Response: ${response.body}');
           data = jsonDecode(response.body)['data'];
+          print('status: ${data['active']}');
           notifyListeners();
         }
       }
