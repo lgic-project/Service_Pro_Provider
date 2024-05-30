@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:service_pro_provider/Provider/category_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/profile_provider.dart';
 import 'package:service_pro_provider/Provider/login_logout_provider.dart';
@@ -29,6 +30,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => LoginLogoutProvider()),
         ChangeNotifierProvider(create: (_) => ChatUserProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
