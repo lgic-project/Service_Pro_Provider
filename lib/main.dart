@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:service_pro_provider/Admin%20Panel/admin_dashboard.dart';
 import 'package:service_pro_provider/Provider/category_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/profile_provider.dart';
@@ -42,6 +43,7 @@ class _MyAppState extends State<MyApp> {
           '/': (context) => SplashScreen(),
           '/dashboard': (context) => const NavigatorScaffold(),
           '/login': (context) => const LoginScreen(),
+          '/admin': (context)=> const AdminDashboard(),
         },
       ),
     );

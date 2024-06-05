@@ -23,7 +23,7 @@ class CategoryProvider with ChangeNotifier {
   }
 
   Future<void> addCategory(BuildContext context, String name,
-      String description, String image) async {
+      String description,) async {
     final token =
         Provider.of<LoginLogoutProvider>(context, listen: false).token;
     try {
@@ -36,7 +36,6 @@ class CategoryProvider with ChangeNotifier {
               body: jsonEncode({
                 'Name': name,
                 'Description': description,
-                'Image': image,
               }));
     } catch (e) {
       print('error in adding category: $e');

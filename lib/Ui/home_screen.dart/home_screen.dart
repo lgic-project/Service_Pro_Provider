@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -15,36 +14,8 @@ class _HomeScreenState extends State<HomeScreen> {
       padding: const EdgeInsets.all(16.0),
       child: Column(
         children: [
-          Text(
-            'Rating and Reviews',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 16),
-          RatingBarIndicator(
-            rating: 4, // replace with your provider rating
-            itemBuilder: (context, index) => Icon(
-              Icons.star,
-              color: Colors.yellow,
-            ),
-            itemCount: 5,
-            itemSize: 40.0,
-            direction: Axis.horizontal,
-          ),
-          SizedBox(height: 24),
-          Container(
-            height: 200, // adjust this value as needed
-            child: ListView.builder(
-              itemCount: 4, // replace with your list of reviews length
-              itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    title: Text('Great job, keep doing'), // replace with your provider review
-                  ),
-                );
-              },
-            ),
-          ),
-          SizedBox(height: 24),
+
+
           Text(
             'Request',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),

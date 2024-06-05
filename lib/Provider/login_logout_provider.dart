@@ -7,7 +7,9 @@ class LoginLogoutProvider with ChangeNotifier {
   bool _isLoading = false;
   bool _isLoggedIn = false;
   String _token = '';
+  String _role = '';
 
+  String get role => _role;
   String get token => _token;
   bool get isLoading => _isLoading;
   bool get isLoggedIn => _isLoggedIn;
@@ -30,9 +32,11 @@ class LoginLogoutProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         _token = data['data']['token'];
+        _role = data['data']['Role'];
         final role = data['data']['Role'];
-        if (role == 'Provider') {
+        if (role == 'Provider' || role == 'admin') {
           await _storeToken(_token);
+          await _storeRole(role);
           _isLoggedIn = true;
         } else {
           print('Error: Invalid role');
@@ -61,6 +65,7 @@ class LoginLogoutProvider with ChangeNotifier {
   Future<void> autoLogin() async {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('token') ?? '';
+    _role = prefs.getString('role') ?? '';
     _isLoggedIn = _token.isNotEmpty;
     notifyListeners();
   }
@@ -68,5 +73,10 @@ class LoginLogoutProvider with ChangeNotifier {
   Future<void> _storeToken(String token) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('token', token);
+  }
+
+  Future<void> _storeRole(String role) async{
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('role', role);
   }
 }

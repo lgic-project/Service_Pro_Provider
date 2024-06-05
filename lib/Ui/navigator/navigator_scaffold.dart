@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Provider/login_logout_provider.dart';
-import 'package:service_pro_provider/Ui/add_category_service/add.dart';
 import 'package:service_pro_provider/Ui/chat/chat_list.dart';
 import 'package:service_pro_provider/Ui/home_screen.dart/home_screen.dart';
 import 'package:service_pro_provider/Ui/profile/profile_page.dart';
@@ -24,28 +23,28 @@ class _NavigatorScaffoldState extends State<NavigatorScaffold> {
     final userProvider = Provider.of<LoginLogoutProvider>(context);
     switch (currentIndex) {
       case 0:
-        currentBody = HomeScreen();
+        currentBody = const HomeScreen();
 
         break;
       case 1:
-        currentBody = Chat();
+        currentBody = const Chat();
 
         break;
+
+      // case 2:
+      //   currentBody = Add();
+      //   break;
 
       case 2:
-        currentBody = Add();
-        break;
-
-      case 3:
         currentBody = ProfilePage();
     }
     return Scaffold(
       extendBody: true,
       // backgroundColor: Colors.black,
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(kToolbarHeight),
+        preferredSize: const Size.fromHeight(kToolbarHeight),
         child: ClipRRect(
-          borderRadius: BorderRadius.only(
+          borderRadius: const BorderRadius.only(
             bottomLeft: Radius.circular(5),
             bottomRight: Radius.circular(5),
           ),
@@ -99,7 +98,7 @@ class _NavigatorScaffoldState extends State<NavigatorScaffold> {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(40),
               child: BottomNavigationBar(
-                type: BottomNavigationBarType.fixed,
+                // type: BottomNavigationBarType.fixed,
                 backgroundColor: Theme.of(context).primaryColor,
                 items: [
                   BottomNavigationBarItem(
@@ -120,18 +119,18 @@ class _NavigatorScaffoldState extends State<NavigatorScaffold> {
                             : unSelectedItemColor),
                     label: 'Chat',
                   ),
-                  BottomNavigationBarItem(
-                    icon: Image.asset('assets/icons/booking.png',
-                        height: 30,
-                        color: currentIndex == 2
-                            ? selectedItemColor
-                            : unSelectedItemColor),
-                    label: 'Add',
-                  ),
+                  // BottomNavigationBarItem(
+                  //   icon: Image.asset('assets/icons/booking.png',
+                  //       height: 30,
+                  //       color: currentIndex == 2
+                  //           ? selectedItemColor
+                  //           : unSelectedItemColor),
+                  //   label: 'Add',
+                  // ),
                   BottomNavigationBarItem(
                     icon: Image.asset('assets/icons/profile.png',
                         height: 30,
-                        color: currentIndex == 3
+                        color: currentIndex == 2
                             ? selectedItemColor
                             : unSelectedItemColor),
                     label: 'Profile',
