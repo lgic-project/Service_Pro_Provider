@@ -22,8 +22,11 @@ class CategoryProvider with ChangeNotifier {
     }
   }
 
-  Future<void> addCategory(BuildContext context, String name,
-      String description,) async {
+  Future<void> addCategory(
+    BuildContext context,
+    String name,
+    String description,
+  ) async {
     final token =
         Provider.of<LoginLogoutProvider>(context, listen: false).token;
     try {

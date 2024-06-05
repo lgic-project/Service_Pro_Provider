@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Admin%20Panel/admin_dashboard.dart';
-import 'package:service_pro_provider/Provider/category_provider.dart';
+import 'package:service_pro_provider/Provider/category_provider/category_provider.dart';
+import 'package:service_pro_provider/Provider/category_provider/put_category_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/profile_provider.dart';
 import 'package:service_pro_provider/Provider/login_logout_provider.dart';
@@ -32,6 +33,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ChatUserProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
         ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => UpdateCategory()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -43,7 +45,7 @@ class _MyAppState extends State<MyApp> {
           '/': (context) => SplashScreen(),
           '/dashboard': (context) => const NavigatorScaffold(),
           '/login': (context) => const LoginScreen(),
-          '/admin': (context)=> const AdminDashboard(),
+          '/admin': (context) => const AdminDashboard(),
         },
       ),
     );
