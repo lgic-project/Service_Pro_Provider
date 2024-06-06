@@ -41,9 +41,12 @@ class _ChatScreenState extends State<ChatScreen> {
         print('Connected to socket server');
       });
 
-      socket.on('message', (data) {
+      socket.on('liveMessage', (data) {
         setState(() {
-          messages.add(data);
+          messages.add({
+            'sender': 'receiver', // Assuming the message is from the receiver
+            'message': data,
+          });
         });
       });
 
