@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Provider/login_logout_provider.dart';
 import 'package:service_pro_provider/Ui/login_signup/login_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
@@ -18,17 +19,27 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   Future<void> checkUserLoggedIn() async {
+    final prefs = await SharedPreferences.getInstance();
+    final role = prefs.getString('role') ?? '';
     final apiProvider =
         Provider.of<LoginLogoutProvider>(context, listen: false);
-    await apiProvider.autoLogin();
+    await apiProvider.autoLogin(context);
 
-    Timer(Duration(seconds: 3), () {
+    Timer(const Duration(seconds: 2), () {
       if (apiProvider.isLoggedIn) {
-        Navigator.pushReplacementNamed(context, '/dashboard');
+        if (role == 'Provider') {
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/dashboard', (route) => false);
+        } else if (role == 'admin') {
+          Navigator.pushNamedAndRemoveUntil(
+              context, '/admin', (route) => false);
+        } else {
+          print('Error: Invalid role');
+        }
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => LoginScreen()),
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
         );
       }
     });
@@ -37,11 +48,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     // Set the status bar color to transparent
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
     ));
 
-    return Scaffold(
+    return const Scaffold(
       backgroundColor: Color(0xFF4A90E2), // Blue color
       body: Center(
         child: Column(

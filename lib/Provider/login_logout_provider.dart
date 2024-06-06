@@ -38,8 +38,10 @@ class LoginLogoutProvider with ChangeNotifier {
           await _storeToken(_token);
           await _storeRole(role);
           _isLoggedIn = true;
+          notifyListeners();
         } else {
-          print('Error: Invalid role');
+          _isLoggedIn = false;
+          throw Exception('Invalid role');
         }
       }
     } catch (e) {
@@ -52,22 +54,30 @@ class LoginLogoutProvider with ChangeNotifier {
   }
 
   Future<void> logOut() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('token') ?? '';
-    if (_token.isNotEmpty) {
-      await prefs.remove('token');
-      _token = '';
-      _isLoggedIn = false;
-      notifyListeners();
-    }
+    await _clearTokenAndRole();
+    notifyListeners();
   }
 
-  Future<void> autoLogin() async {
+  Future<void> _clearTokenAndRole() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('token');
+    await prefs.remove('role');
+    _token = '';
+    _role = '';
+    _isLoggedIn = false;
+  }
+
+  Future<void> autoLogin(context) async {
     final prefs = await SharedPreferences.getInstance();
     _token = prefs.getString('token') ?? '';
     _role = prefs.getString('role') ?? '';
-    _isLoggedIn = _token.isNotEmpty;
+    if (_token.isNotEmpty && _role.isNotEmpty) {
+      if (_role == 'Provider' || _role == 'admin') {
+        _isLoggedIn = true;
+      }
+    }
     notifyListeners();
+    return;
   }
 
   Future<void> _storeToken(String token) async {
@@ -75,7 +85,7 @@ class LoginLogoutProvider with ChangeNotifier {
     await prefs.setString('token', token);
   }
 
-  Future<void> _storeRole(String role) async{
+  Future<void> _storeRole(String role) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('role', role);
   }

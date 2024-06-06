@@ -19,7 +19,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final apiProvider = Provider.of<LoginLogoutProvider>(context);
-    final role = Provider.of<LoginLogoutProvider>(context, listen: false).role;
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -113,6 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       // Check if the login was successful
                       if (apiProvider.isLoggedIn) {
+                        final role = apiProvider.role;
                         if (role == 'Provider') {
                           Navigator.pushReplacementNamed(context, '/dashboard');
                         } else if (role == 'admin') {

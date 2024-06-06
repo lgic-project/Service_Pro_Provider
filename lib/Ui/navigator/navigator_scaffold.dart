@@ -71,9 +71,9 @@ class _NavigatorScaffoldState extends State<NavigatorScaffold> {
                                 child: const Text('No'),
                               ),
                               TextButton(
-                                onPressed: () {
-                                  userProvider.logOut();
-                                  Navigator.pushReplacementNamed(
+                                onPressed: () async {
+                                  await userProvider.logOut();
+                                  await Navigator.pushReplacementNamed(
                                       context, '/login');
                                 },
                                 child: const Text('Yes'),
