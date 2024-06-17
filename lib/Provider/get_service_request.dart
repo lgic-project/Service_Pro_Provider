@@ -36,4 +36,52 @@ class GetServiceRequest with ChangeNotifier {
     }
     return [];
   }
+
+  Future<void> acceptRequest(BuildContext context, String id) async {
+    final token =
+        Provider.of<LoginLogoutProvider>(context, listen: false).token;
+    try {
+      final response = await http.post(
+          Uri.parse('http://20.52.185.247:8000/request/accept/$id'),
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+          body: {
+            'Status': 'accepted',
+          });
+      if (response.statusCode == 200) {
+        print('Request accepted successfully');
+        notifyListeners();
+      } else {
+        print(
+            'Error accepting request: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error accepting request: $e');
+    }
+  }
+
+  Future<void> rejectRequest(BuildContext context, String id) async {
+    final token =
+        Provider.of<LoginLogoutProvider>(context, listen: false).token;
+    try {
+      final response = await http.post(
+          Uri.parse('http://20.52.185.247:8000/request/accept/$id'),
+          headers: {
+            'Authorization': 'Bearer $token',
+          },
+          body: {
+            'Status': 'rejected',
+          });
+      if (response.statusCode == 200) {
+        print('Request rejected successfully');
+        notifyListeners();
+      } else {
+        print(
+            'Error accepting request: ${response.statusCode} ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error accepting request: $e');
+    }
+  }
 }
