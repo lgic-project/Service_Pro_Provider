@@ -7,16 +7,15 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
-import 'package:service_pro_provider/Provider/login_logout_provider.dart';
 
-class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({super.key});
+class ManageCategory extends StatefulWidget {
+  const ManageCategory({super.key});
 
   @override
-  State<AdminDashboard> createState() => _AdminDashboardState();
+  State<ManageCategory> createState() => _ManageCategoryState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
+class _ManageCategoryState extends State<ManageCategory> {
   final ImagePicker _picker = ImagePicker();
   String? _compressedImageUrl;
 
@@ -54,24 +53,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider =
-        Provider.of<LoginLogoutProvider>(context, listen: false);
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text('Admin Dashboard'),
-        backgroundColor: Colors.blueAccent,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              await userProvider.logOut();
-              Navigator.pushNamedAndRemoveUntil(
-                  context, '/login', (route) => false);
-            },
-            icon: const Icon(Icons.logout),
-          ),
-        ],
-      ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
@@ -105,6 +87,9 @@ class _AdminDashboardState extends State<AdminDashboard> {
           ),
           IconButton(
             onPressed: () async {
+              setState(() {
+                _compressedImageUrl = null;
+              });
               await _showAddCategoryDialog(context);
             },
             icon: const Icon(Icons.add, color: Colors.white),
@@ -153,6 +138,19 @@ class _AdminDashboardState extends State<AdminDashboard> {
                     description = value!;
                   },
                 ),
+                const SizedBox(height: 10),
+                if (_compressedImageUrl != null)
+                  Image.network(
+                    _compressedImageUrl!,
+                    width: 100,
+                    height: 100,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Lottie.asset('assets/lotties_animation/error.json'),
+                  ),
+                ElevatedButton(
+                  onPressed: () => _pickAndCompressImage(context, ''),
+                  child: const Text('Pick Image'),
+                ),
               ],
             ),
           ),
@@ -185,61 +183,60 @@ class _AdminDashboardState extends State<AdminDashboard> {
     return FutureBuilder(
       future: Provider.of<CategoryProvider>(context).fetchCategories(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
-        } else if (snapshot.error != null) {
-          return const Center(child: Text('An error occurred!'));
-        } else {
-          final data =
-              Provider.of<CategoryProvider>(context, listen: false).data;
-          return Expanded(
-            child: ListView.builder(
-              itemCount: data.length,
-              itemBuilder: (context, index) {
-                final categoryItem = data[index];
-                String image = categoryItem['Image'].toString();
-                image = image.replaceFirst('localhost', '20.52.185.247');
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 5),
-                  child: ListTile(
-                    leading: Container(
-                      width: 50,
-                      child: Image.network(
-                        image,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Lottie.asset('assets/lotties_animation/error.json'),
-                      ),
-                    ),
-                    title: Text(categoryItem['Name']),
-                    trailing: Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            await _showEditCategoryDialog(
-                                context, categoryItem);
-                          },
-                          icon:
-                              const Icon(Icons.edit, color: Colors.blueAccent),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            // Delete functionality can be added here
-                          },
-                          icon:
-                              const Icon(Icons.delete, color: Colors.redAccent),
-                        ),
-                      ],
+        // if (snapshot.connectionState == ConnectionState.waiting) {
+        //   return const Center(
+        //     child: CircularProgressIndicator(),
+        //   );
+        // } else if (snapshot.error != null) {
+        //   return const Center(child: Text('An error occurred!'));
+        // } else {
+        final data = Provider.of<CategoryProvider>(context, listen: false).data;
+        return Expanded(
+          child: ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final categoryItem = data[index];
+              String image = categoryItem['Image'].toString();
+              image = image.replaceFirst('localhost', '20.52.185.247');
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 5),
+                child: ListTile(
+                  leading: Container(
+                    width: 50,
+                    child: Image.network(
+                      image,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Lottie.asset('assets/lotties_animation/error.json'),
                     ),
                   ),
-                );
-              },
-            ),
-          );
-        }
+                  title: Text(categoryItem['Name']),
+                  trailing: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        onPressed: () async {
+                          setState(() {
+                            _compressedImageUrl = null;
+                          });
+                          await _showEditCategoryDialog(context, categoryItem);
+                        },
+                        icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          // Delete functionality can be added here
+                        },
+                        icon: const Icon(Icons.delete, color: Colors.redAccent),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+        //}
       },
     );
   }
@@ -303,9 +300,24 @@ class _AdminDashboardState extends State<AdminDashboard> {
                   _formKey.currentState!.save();
                   imageUrl = _compressedImageUrl ?? categoryItem['Image'];
 
-                  Provider.of<UpdateCategory>(context, listen: false)
+                  bool isSuccess = await Provider.of<UpdateCategory>(context,
+                          listen: false)
                       .updateCategory(
                           context, categoryItem['_id'], updatedName, imageUrl!);
+
+                  if (isSuccess) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Category updated successfully!'),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Category update failed.'),
+                      ),
+                    );
+                  }
 
                   Navigator.of(context).pop();
                 }

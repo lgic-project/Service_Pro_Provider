@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:service_pro_provider/Provider/login_logout_provider.dart';
 
 class UpdateCategory with ChangeNotifier {
-  Future<void> updateCategory(
+  Future<bool> updateCategory(
       BuildContext context, String cid, String name, String image) async {
     final token =
         Provider.of<LoginLogoutProvider>(context, listen: false).token;
@@ -26,12 +26,15 @@ class UpdateCategory with ChangeNotifier {
         print('Category updated successfully');
         print('Response: ${response.body}'); // Debug statement
         notifyListeners();
+        return true; // Indicate success
       } else {
         print(
             'Error in updating category: ${response.statusCode} ${response.body}');
+        return false; // Indicate failure
       }
     } catch (e) {
       print('Error in updating category: $e');
+      return false; // Indicate failure
     }
   }
 
