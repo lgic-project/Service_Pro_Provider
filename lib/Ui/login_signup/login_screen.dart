@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/login_logout_provider.dart';
+import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
 import 'package:service_pro_provider/Ui/login_signup/signup.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -34,14 +34,14 @@ class _LoginScreenState extends State<LoginScreen> {
       body: Stack(
         fit: StackFit.expand,
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage("assets/loginimage.jpg"),
-                fit: BoxFit.cover,
-              ),
-            ),
-          ),
+          // Container(
+          //   decoration: const BoxDecoration(
+          //     image: DecorationImage(
+          //       image: AssetImage("assets/loginimage.jpg"),
+          //       fit: BoxFit.cover,
+          //     ),
+          //   ),
+          // ),
           SingleChildScrollView(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -113,7 +113,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       // Check if the login was successful
                       if (apiProvider.isLoggedIn) {
                         final role = apiProvider.role;
-                        if (role == 'Provider') {
+                        if (role == 'Provider' || role == 'provider') {
                           Navigator.pushReplacementNamed(context, '/dashboard');
                         } else if (role == 'admin') {
                           Navigator.pushReplacementNamed(context, '/admin');

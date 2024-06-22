@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/login_logout_provider.dart';
+import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
 
 class CategoryProvider with ChangeNotifier {
   List<dynamic> data = [];
@@ -13,6 +13,7 @@ class CategoryProvider with ChangeNotifier {
       if (response.statusCode == 200) {
         print('Response: ${data}');
         data = jsonDecode(response.body)['data'] as List;
+        notifyListeners();
       } else {
         print(
             'error in fetching categories:${response.statusCode} ${response.body}');

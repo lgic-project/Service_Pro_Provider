@@ -4,7 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import '../../Provider/profile_provider.dart';
-import '../../Provider/login_logout_provider.dart';
+import '../../Provider/login_signup_provider/login_logout_provider.dart';
 
 class ProfilePage extends StatefulWidget {
   @override

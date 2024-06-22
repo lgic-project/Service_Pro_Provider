@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/login_logout_provider.dart';
+import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
 import 'package:service_pro_provider/Ui/login_signup/login_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
