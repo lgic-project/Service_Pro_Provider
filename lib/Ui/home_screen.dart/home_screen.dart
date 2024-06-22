@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Provider/category_provider/service_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/get_service_request.dart';
-import 'package:service_pro_provider/Provider/login_logout_provider.dart';
+import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -88,8 +88,8 @@ class _HomeScreenState extends State<HomeScreen> {
               );
 
               return Container(
-                margin: EdgeInsets.symmetric(vertical: 8),
-                padding: EdgeInsets.all(16),
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey),
                   borderRadius: BorderRadius.circular(12),
@@ -111,15 +111,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      title: Text('Accept Request'),
-                                      content: Text(
+                                      title: const Text('Accept Request'),
+                                      content: const Text(
                                           'Are you sure you want to accept this request?'),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
-                                          child: Text('Cancel'),
+                                          child: const Text('Cancel'),
                                         ),
                                         TextButton(
                                           onPressed: () async {
@@ -128,13 +128,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     context, request['_id']);
                                             Navigator.pop(context);
                                           },
-                                          child: Text('Accept'),
+                                          child: const Text('Accept'),
                                         ),
                                       ],
                                     );
                                   });
                             },
-                            child: Text('Accept'),
+                            child: const Text('Accept'),
                           ),
                           ElevatedButton(
                             onPressed: () {
@@ -142,15 +142,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   context: context,
                                   builder: (context) {
                                     return AlertDialog(
-                                      title: Text('Reject Request'),
-                                      content: Text(
+                                      title: const Text('Reject Request'),
+                                      content: const Text(
                                           'Are you sure you want to reject this request?'),
                                       actions: [
                                         TextButton(
                                           onPressed: () {
                                             Navigator.pop(context);
                                           },
-                                          child: Text('Cancel'),
+                                          child: const Text('Cancel'),
                                         ),
                                         TextButton(
                                           onPressed: () async {
@@ -159,13 +159,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                                     context, request['_id']);
                                             Navigator.pop(context);
                                           },
-                                          child: Text('Reject'),
+                                          child: const Text('Reject'),
                                         ),
                                       ],
                                     );
                                   });
                             },
-                            child: Text('Reject'),
+                            child: const Text('Reject'),
                             style: ElevatedButton.styleFrom(
                               foregroundColor: Colors.white,
                               backgroundColor: Colors.red, // foreground
@@ -184,49 +184,52 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       'Requests',
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'Pending Requests',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    if (pendingRequests.isEmpty) Text('No pending requests'),
+                    if (pendingRequests.isEmpty)
+                      const Text('No pending requests'),
                     ...pendingRequests
                         .map((request) => buildRequestCard(request))
                         .toList(),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'Accepted Requests',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    if (acceptedRequests.isEmpty) Text('No accepted requests'),
+                    if (acceptedRequests.isEmpty)
+                      const Text('No accepted requests'),
                     ...acceptedRequests
                         .map((request) => buildRequestCard(request))
                         .toList(),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'Completed Requests',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     if (completedRequests.isEmpty)
-                      Text('No completed requests'),
+                      const Text('No completed requests'),
                     ...completedRequests
                         .map((request) => buildRequestCard(request))
                         .toList(),
-                    SizedBox(height: 16),
-                    Text(
+                    const SizedBox(height: 16),
+                    const Text(
                       'Rejected Requests',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    if (rejectedRequests.isEmpty) Text('No rejected requests'),
+                    if (rejectedRequests.isEmpty)
+                      const Text('No rejected requests'),
                     ...rejectedRequests
                         .map((request) => buildRequestCard(request))
                         .toList(),
