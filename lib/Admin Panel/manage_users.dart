@@ -127,22 +127,14 @@ class _ManageUsersState extends State<ManageUsers> {
                         ? Colors.blue
                         : Colors.orange;
 
-                String? profileUrl;
-                if (filteredUsers[index]['Image'] != null &&
-                    filteredUsers[index]['Image'].isNotEmpty) {
-                  profileUrl = filteredUsers[index]['Image'][0];
-                }
-
-                String placeholderUrl =
-                    'https://qph.cf2.quoracdn.net/main-qimg-45522400d2414ea1f59c13bd04663089';
-
                 return Card(
                   elevation: 3,
                   margin: EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundImage:
-                          NetworkImage(profileUrl ?? placeholderUrl),
+                      backgroundImage: NetworkImage(filteredUsers[index]
+                              ['ProfileImg'] ??
+                          'https://qph.cf2.quoracdn.net/main-qimg-45522400d2414ea1f59c13bd04663089'),
                     ),
                     title: Text(
                       filteredUsers[index]['Name'].toString(),

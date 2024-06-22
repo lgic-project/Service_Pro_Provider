@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Admin%20Panel/manage_category.dart';
 import 'package:service_pro_provider/Admin%20Panel/manage_users.dart';
-import 'package:service_pro_provider/Provider/login_logout_provider.dart';
+import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
 
 class AdminHome extends StatefulWidget {
   const AdminHome({super.key});
