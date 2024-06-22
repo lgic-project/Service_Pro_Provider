@@ -7,8 +7,9 @@ import 'package:service_pro_provider/Provider/category_provider/put_category_pro
 import 'package:service_pro_provider/Provider/category_provider/service_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/get_service_request.dart';
+import 'package:service_pro_provider/Provider/login_signup_provider/signup_provider.dart';
 import 'package:service_pro_provider/Provider/profile_provider.dart';
-import 'package:service_pro_provider/Provider/login_logout_provider.dart';
+import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
 import 'package:service_pro_provider/Provider/verify_provider.dart';
 import 'package:service_pro_provider/Ui/navigator/navigator_scaffold.dart';
 import 'package:service_pro_provider/Ui/login_signup/login_screen.dart';
@@ -41,6 +42,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => GetServiceRequest()),
         ChangeNotifierProvider(create: (_) => UpdateCategory()),
         ChangeNotifierProvider(create: (_) => VerifyAccount()),
+        ChangeNotifierProvider(create: (_) => SignUpProvider()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
