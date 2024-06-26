@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:service_pro_provider/Admin%20Panel/user_details.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/verify_provider.dart';
 
@@ -128,7 +129,16 @@ class _ManageUsersState extends State<ManageUsers> {
                         : Colors.orange;
 
                 return GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => UserDetailsScreen(
+                            name: filteredUsers[index]['Name'] ?? '',
+                            user: filteredUsers[index]['Documents'] ?? []),
+                      ),
+                    );
+                  },
                   child: Card(
                     elevation: 3,
                     margin: EdgeInsets.symmetric(vertical: 8),
