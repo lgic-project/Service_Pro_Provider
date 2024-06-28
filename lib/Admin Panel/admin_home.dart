@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Admin%20Panel/manage_category.dart';
+import 'package:service_pro_provider/Admin%20Panel/manage_service.dart';
 import 'package:service_pro_provider/Admin%20Panel/manage_users.dart';
 import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
 
@@ -52,6 +53,15 @@ class _AdminHomeState extends State<AdminHome> {
               onTap: () {
                 setState(() {
                   currentBody = const ManageCategory();
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: const Text('Manage Service'),
+              onTap: () {
+                setState(() {
+                  currentBody = const ManageService();
                 });
                 Navigator.pop(context);
               },
