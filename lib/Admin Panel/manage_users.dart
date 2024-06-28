@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Admin%20Panel/user_details.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
+import 'package:service_pro_provider/Provider/deactivate_user_provider.dart';
 import 'package:service_pro_provider/Provider/verify_provider.dart';
 
 class ManageUsers extends StatefulWidget {
@@ -167,6 +168,10 @@ class _ManageUsersState extends State<ManageUsers> {
                             style: TextStyle(fontSize: 14),
                           ),
                           Text(
+                            'Active: ${filteredUsers[index]['Active'].toString()}',
+                            style: TextStyle(fontSize: 14),
+                          ),
+                          Text(
                             'Role: ${filteredUsers[index]['Role'].toString()}',
                             style: TextStyle(fontSize: 14),
                           ),
@@ -183,62 +188,97 @@ class _ManageUsersState extends State<ManageUsers> {
                       trailing: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          IconButton(
-                            icon:
-                                Icon(Icons.verified, color: verifyButtonColor),
-                            onPressed: () {
-                              showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    title: Text(
-                                        'Verify  ${filteredUsers[index]['Name'].toString()}'),
-                                    content: Text(
-                                        'Are you sure you want to verify this account?'),
-                                    actions: [
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                        },
-                                        child: Text('Cancel'),
-                                      ),
-                                      TextButton(
-                                        onPressed: () async {
-                                          try {
-                                            await Provider.of<VerifyAccount>(
-                                                    context,
-                                                    listen: false)
-                                                .verifyAccount(
-                                              context,
-                                              filteredUsers[index]['_id']
-                                                  .toString(),
-                                            );
-                                            setState(
-                                                () {}); // Refresh UI after verification
+                          Expanded(
+                            child: IconButton(
+                              icon: Icon(Icons.verified,
+                                  color: verifyButtonColor),
+                              onPressed: () {
+                                showDialog(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      title: Text(
+                                          'Verify  ${filteredUsers[index]['Name'].toString()}'),
+                                      content: Text(
+                                          'Are you sure you want to verify this account?'),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () {
                                             Navigator.pop(context);
-                                          } catch (e) {
-                                            print('Verification error: $e');
-                                            Navigator.pop(context);
-                                          }
-                                        },
-                                        child: Text('Verify'),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              );
-                            },
+                                          },
+                                          child: Text('Cancel'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () async {
+                                            try {
+                                              await Provider.of<VerifyAccount>(
+                                                      context,
+                                                      listen: false)
+                                                  .verifyAccount(
+                                                context,
+                                                filteredUsers[index]['_id']
+                                                    .toString(),
+                                              );
+                                              setState(
+                                                  () {}); // Refresh UI after verification
+                                              Navigator.pop(context);
+                                            } catch (e) {
+                                              print('Verification error: $e');
+                                              Navigator.pop(context);
+                                            }
+                                          },
+                                          child: Text('Verify'),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
+                            ),
                           ),
                           Expanded(
                             child: IconButton(
                               icon: Icon(Icons.delete, color: Colors.red),
                               onPressed: () {
-                                // Cverifyed / not the delete user method
-                                // Provider.of<ChatUserProvider>(context, listen: false)
-                                //     .deleteUser(
-                                //   context,
-                                //   filteredUsers[index]['_id'].toString(),
-                                // );
+                                showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return AlertDialog(
+                                        title: Text(
+                                            'Delete  ${filteredUsers[index]['Name'].toString()}'),
+                                        content: Text(
+                                            'Are you sure you want to delete this account?'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () {
+                                              Navigator.pop(context);
+                                            },
+                                            child: Text('Cancel'),
+                                          ),
+                                          TextButton(
+                                            onPressed: () async {
+                                              try {
+                                                await Provider.of<DeleteUser>(
+                                                        context,
+                                                        listen: false)
+                                                    .deleteUser(
+                                                  context,
+                                                  filteredUsers[index]['_id']
+                                                      .toString(),
+                                                );
+                                                setState(
+                                                    () {}); // Refresh UI after deletion
+                                                Navigator.pop(context);
+                                              } catch (e) {
+                                                print('Deletion error: $e');
+                                                Navigator.pop(context);
+                                              }
+                                            },
+                                            child: Text('Delete'),
+                                          ),
+                                        ],
+                                      );
+                                    });
                               },
                             ),
                           ),
