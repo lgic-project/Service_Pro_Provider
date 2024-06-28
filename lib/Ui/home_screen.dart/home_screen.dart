@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/category_provider/service_provider.dart';
+import 'package:service_pro_provider/Provider/service_provider/service_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/get_service_request.dart';
 import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
