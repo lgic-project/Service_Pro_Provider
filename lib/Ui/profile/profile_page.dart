@@ -1,9 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Provider/rating_and_reviews/get_reviews_provider.dart';
+import 'package:service_pro_provider/Ui/profile/widget/add_remove_service.dart';
 import '../../Provider/profile_provider.dart';
 import '../../Provider/login_signup_provider/login_logout_provider.dart';
 
@@ -79,6 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
         var user = profile.data;
         final profilePic = (user['ProfileImg'] ??
             'https://dudewipes.com/cdn/shop/articles/gigachad.jpg?v=1667928905&width=2048');
+        final List<String> serviceIds = List<String>.from(user['Services']);
+
         return Container(
           color: Colors.grey[200],
           child: Column(
@@ -94,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
                       decoration: BoxDecoration(
@@ -115,6 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 10),
                     Card(
+                      color: Theme.of(context).primaryColor,
                       margin: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: ListTile(
                         title: Text(
@@ -122,7 +127,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF43cbac),
+                            color: Colors.white,
                           ),
                         ),
                         subtitle: Column(
@@ -132,17 +137,46 @@ class _ProfilePageState extends State<ProfilePage> {
                               'Total Services: ${(user['ServiceAnalytics']?['TotalServices'] ?? 0).toString()}',
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF43cbac),
+                                color: Colors.white,
                               ),
                             ),
                             Text(
                               'Completed Services: ${(user['ServiceAnalytics']?['CompletedServices'] ?? 0).toString()}',
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF43cbac),
+                                color: Colors.white,
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: SizedBox(
+                        width: double.maxFinite,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddRemoveService(
+                                  selectedServiceIds: serviceIds,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Manage your Services',
+                            style: TextStyle(fontSize: 18),
+                          ),
                         ),
                       ),
                     ),
@@ -202,40 +236,39 @@ class _ProfilePageState extends State<ProfilePage> {
                               margin: const EdgeInsets.symmetric(
                                   vertical: 8.0, horizontal: 16.0),
                               child: ListTile(
-                                  leading: CircleAvatar(
-                                    backgroundImage: AssetImage(
-                                        'assets/profile/default_profile.jpg'),
-                                  ),
-                                  title: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(reviews[index]['UserId']['Name'],
-                                          style:
-                                              TextStyle(color: Colors.white)),
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        children: buildStarWidgets(
-                                            reviews[index]['Rating'].toDouble(),
-                                            15),
-                                      ),
-                                    ],
-                                  ),
-                                  subtitle: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Service: ${reviews[index]['ServiceId']['Name']}',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                      Text(
-                                        'Comment: ${reviews[index]['Comment']}',
-                                        style: TextStyle(color: Colors.white),
-                                      ),
-                                    ],
-                                  )),
+                                leading: CircleAvatar(
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        reviews[index]['UserId']
+                                                ['ProfileImg'] ??
+                                            'https://dudewipes.com/cdn/shop/articles/gigachad.jpg?v=1667928905&width=2048')),
+                                title: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(reviews[index]['UserId']['Name'],
+                                        style: TextStyle(color: Colors.white)),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: buildStarWidgets(
+                                          reviews[index]['Rating'].toDouble(),
+                                          15),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Service: ${reviews[index]['ServiceId']['Name']}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      'Comment: ${reviews[index]['Comment']}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             );
                           },
                         );
