@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Provider/service_provider/service_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
@@ -22,13 +23,15 @@ class _HomeScreenState extends State<HomeScreen>
     Colors.orange,
     Colors.green,
     Colors.blue,
-    Colors.red
+    Colors.red,
+    Colors.grey, // Color for canceled tab
   ];
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController =
+        TabController(length: 5, vsync: this); // Updated length to 5
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
         setState(() {
@@ -72,19 +75,33 @@ class _HomeScreenState extends State<HomeScreen>
                       color: Colors.orange)), // Specific color for this tab
             ),
             Tab(
-              child: Text('Accepted',
-                  style: TextStyle(
-                      color: Colors.green)), // Specific color for this tab
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Accepted', style: TextStyle(color: Colors.green)),
+              ), // Specific color for this tab
             ),
             Tab(
-              child: Text('Completed',
-                  style: TextStyle(
-                      color: Colors.blue)), // Specific color for this tab
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Completed',
+                    style: TextStyle(
+                      color: Colors.blue,
+                    )),
+              ), // Specific color for this tab
             ),
             Tab(
               child: Text('Rejected',
                   style: TextStyle(
                       color: Colors.red)), // Specific color for this tab
+            ),
+            Tab(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Canceled',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    )),
+              ), // Specific color for this tab
             ),
           ],
           indicatorColor: tabColor,
@@ -130,6 +147,11 @@ class _HomeScreenState extends State<HomeScreen>
               RequestList(
                   requests: getFilteredRequests('rejected'),
                   status: 'rejected',
+                  userData: userData,
+                  serviceData: serviceData),
+              RequestList(
+                  requests: getFilteredRequests('cancelled'),
+                  status: 'cancelled',
                   userData: userData,
                   serviceData: serviceData),
             ],
@@ -205,6 +227,10 @@ class RequestCard extends StatelessWidget {
                 style: Theme.of(context).textTheme.subtitle1),
             Text('Status: ${request['Status']}',
                 style: Theme.of(context).textTheme.subtitle2),
+            Text(
+              'Created: ${DateFormat('MMM d h:mm a').format(DateTime.parse(request['updatedAt']).toUtc().add(Duration(hours: 5, minutes: 45)))}',
+              style: Theme.of(context).textTheme.subtitle2,
+            ),
             if (request['Status'] == 'pending')
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
