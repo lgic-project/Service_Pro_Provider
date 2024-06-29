@@ -31,8 +31,9 @@ class _ManageUsersState extends State<ManageUsers> {
     final users = Provider.of<ChatUserProvider>(context).users;
 
     List filteredUsers = users.where((user) {
-      if (_selectedRole != 'user / provider' &&
-          user['Role'].toString() != _selectedRole) {
+      if (_selectedRole.toLowerCase() != 'user / provider' &&
+          user['Role'].toString().toLowerCase() !=
+              _selectedRole.toLowerCase()) {
         return false;
       }
       if (_selectedVerificationStatus != 'verifyed / not') {

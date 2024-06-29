@@ -27,6 +27,7 @@ class CategoryProvider with ChangeNotifier {
     BuildContext context,
     String name,
     String description,
+    String imageUrl,
   ) async {
     final token =
         Provider.of<LoginLogoutProvider>(context, listen: false).token;

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
@@ -7,11 +9,13 @@ class DeleteUser with ChangeNotifier {
   Future<void> deleteUser(BuildContext context, String id) async {
     final token =
         Provider.of<LoginLogoutProvider>(context, listen: false).token;
-    final response = await http
-        .post(Uri.parse('http://20.52.185.147:8000/user/delete/$id'), headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token',
-    });
+    final response = await http.delete(
+      Uri.parse('http://20.52.185.247:8000/user/delete/$id'),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
     if (response.statusCode == 200) {
       print('User Deleted');
       notifyListeners();

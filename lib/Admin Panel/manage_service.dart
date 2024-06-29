@@ -241,9 +241,9 @@ class _ManageServiceState extends State<ManageService> {
             itemCount: data.length,
             itemBuilder: (context, index) {
               final categoryItem = data[index];
-              Color activeColor = categoryItem['Active'] == true
-                  ? Colors.blue.withOpacity(0.5)
-                  : Colors.amber.withOpacity(0.5);
+              Color activeColor = categoryItem['Active'] == false
+                  ? Colors.amber.withOpacity(0.5)
+                  : Colors.blue.withOpacity(0.5);
 
               String image = categoryItem['Image'].toString();
               image = image.replaceFirst('localhost', '20.52.185.247');

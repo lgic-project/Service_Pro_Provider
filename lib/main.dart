@@ -4,6 +4,7 @@ import 'package:service_pro_provider/Admin%20Panel/manage_category.dart';
 import 'package:service_pro_provider/Admin%20Panel/admin_home.dart';
 import 'package:service_pro_provider/Provider/category_provider/category_provider.dart';
 import 'package:service_pro_provider/Provider/category_provider/put_category_provider.dart';
+import 'package:service_pro_provider/Provider/profile_provider/add_remove_service_provider.dart';
 import 'package:service_pro_provider/Provider/rating_and_reviews/get_reviews_provider.dart';
 import 'package:service_pro_provider/Provider/service_provider/put_service_provider.dart';
 import 'package:service_pro_provider/Provider/service_provider/service_provider.dart';
@@ -49,6 +50,7 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => SignUpProvider()),
         ChangeNotifierProvider(create: (_) => DeleteUser()),
         ChangeNotifierProvider(create: (_) => GetReviewsProvider()),
+        ChangeNotifierProvider(create: (_) => ServiceManage()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

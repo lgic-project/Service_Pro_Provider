@@ -20,6 +20,7 @@ class UpdateCategory with ChangeNotifier {
         body: jsonEncode({
           'Name': name,
           'Image': image,
+          'Active': 'true',
         }),
       );
       if (response.statusCode == 200) {
@@ -60,6 +61,40 @@ class UpdateCategory with ChangeNotifier {
     } catch (e) {
       print('Exception uploading image: $e');
       return null;
+    }
+  }
+
+  Future<bool> updateCategoryActive(
+    BuildContext context,
+    String cid,
+  ) async {
+    final token =
+        Provider.of<LoginLogoutProvider>(context, listen: false).token;
+    try {
+      print('Updating category with ID: $cid'); // Debug statement
+      final response = await http.put(
+        Uri.parse('http://20.52.185.247:8000/category/update/$cid'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'Active': 'false',
+        }),
+      );
+      if (response.statusCode == 200) {
+        print('Category updated successfully');
+        print('Response: ${response.body}'); // Debug statement
+        notifyListeners();
+        return true; // Indicate success
+      } else {
+        print(
+            'Error in updating category: ${response.statusCode} ${response.body}');
+        return false; // Indicate failure
+      }
+    } catch (e) {
+      print('Error in updating category: $e');
+      return false; // Indicate failure
     }
   }
 }
