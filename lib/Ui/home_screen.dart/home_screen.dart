@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/category_provider/service_provider.dart';
+import 'package:service_pro_provider/Provider/service_provider/service_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
 import 'package:service_pro_provider/Provider/get_service_request.dart';
 import 'package:service_pro_provider/Provider/login_signup_provider/login_logout_provider.dart';
@@ -13,11 +14,38 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  Color tabColor = Colors.black;
+
+  final List<Color> tabColors = [
+    Colors.orange,
+    Colors.green,
+    Colors.blue,
+    Colors.red,
+    Colors.grey, // Color for canceled tab
+  ];
+
   @override
   void initState() {
     super.initState();
+    _tabController =
+        TabController(length: 5, vsync: this); // Updated length to 5
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          tabColor = tabColors[_tabController.index];
+        });
+      }
+    });
     fetchData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> fetchData() async {
@@ -35,211 +63,225 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        Consumer4<ChatUserProvider, GetServiceRequest, ServiceProvider,
-            LoginLogoutProvider>(
-          builder: (context, chatUserProvider, getServiceRequest,
-              serviceProvider, loginLogoutProvider, child) {
-            final userData = chatUserProvider.users;
-            final requestData = getServiceRequest.serviceRequests;
-            final serviceData = serviceProvider.service;
-            final token = loginLogoutProvider.token;
-
-            Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-            final id = decodedToken['id'];
-
-            // Debugging prints
-            print('User Data: $userData');
-            print('Request Data: $requestData');
-            print('Service Data: $serviceData');
-            print('Token: $token');
-            print('Id: $id');
-
-            // Filter requests by provider ID
-            List pendingRequests = requestData.where((request) {
-              return request['ProviderId'] == id &&
-                  request['Status'] == 'pending';
-            }).toList();
-
-            List acceptedRequests = requestData.where((request) {
-              return request['ProviderId'] == id &&
-                  request['Status'] == 'accepted';
-            }).toList();
-
-            List completedRequests = requestData.where((request) {
-              return request['ProviderId'] == id &&
-                  request['Status'] == 'completed';
-            }).toList();
-
-            List rejectedRequests = requestData.where((request) {
-              return request['ProviderId'] == id &&
-                  request['Status'] == 'rejected';
-            }).toList();
-
-            Widget buildRequestCard(request) {
-              final user = userData.firstWhere(
-                (user) => user['_id'] == request['UserId'],
-                orElse: () => null,
-              );
-              final service = serviceData.firstWhere(
-                (service) => service['_id'] == request['ServiceId'],
-                orElse: () => null,
-              );
-
-              return Container(
-                margin: const EdgeInsets.symmetric(vertical: 8),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('User: ${user != null ? user['Name'] : 'Unknown'}'),
-                    Text(
-                        'Service: ${service != null ? service['Name'] : 'Unknown'}'),
-                    Text('Status: ${request['Status']}'),
-                    if (request['Status'] == 'pending')
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          ElevatedButton(
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text('Accept Request'),
-                                      content: const Text(
-                                          'Are you sure you want to accept this request?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            await getServiceRequest
-                                                .acceptRequest(
-                                                    context, request['_id']);
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Accept'),
-                                        ),
-                                      ],
-                                    );
-                                  });
-                            },
-                            child: const Text('Accept'),
-                          ),
-                          ElevatedButton(
-                            onPressed: () {
-                              showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: const Text('Reject Request'),
-                                      content: const Text(
-                                          'Are you sure you want to reject this request?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            await getServiceRequest
-                                                .rejectRequest(
-                                                    context, request['_id']);
-                                            Navigator.pop(context);
-                                          },
-                                          child: const Text('Reject'),
-                                        ),
-                                      ],
-                                    );
-                                  });
-                            },
-                            child: const Text('Reject'),
-                            style: ElevatedButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              backgroundColor: Colors.red, // foreground
-                            ),
-                          ),
-                        ],
-                      ),
-                  ],
-                ),
-              );
-            }
-
-            return Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Requests',
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Pending Requests',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    if (pendingRequests.isEmpty)
-                      const Text('No pending requests'),
-                    ...pendingRequests
-                        .map((request) => buildRequestCard(request))
-                        .toList(),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Accepted Requests',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    if (acceptedRequests.isEmpty)
-                      const Text('No accepted requests'),
-                    ...acceptedRequests
-                        .map((request) => buildRequestCard(request))
-                        .toList(),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Completed Requests',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    if (completedRequests.isEmpty)
-                      const Text('No completed requests'),
-                    ...completedRequests
-                        .map((request) => buildRequestCard(request))
-                        .toList(),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Rejected Requests',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                    ),
-                    if (rejectedRequests.isEmpty)
-                      const Text('No rejected requests'),
-                    ...rejectedRequests
-                        .map((request) => buildRequestCard(request))
-                        .toList(),
-                  ],
-                ),
-              ),
-            );
-          },
+    return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 0,
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(
+              child: Text('Pending',
+                  style: TextStyle(
+                      color: Colors.orange)), // Specific color for this tab
+            ),
+            Tab(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Accepted', style: TextStyle(color: Colors.green)),
+              ), // Specific color for this tab
+            ),
+            Tab(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Completed',
+                    style: TextStyle(
+                      color: Colors.blue,
+                    )),
+              ), // Specific color for this tab
+            ),
+            Tab(
+              child: Text('Rejected',
+                  style: TextStyle(
+                      color: Colors.red)), // Specific color for this tab
+            ),
+            Tab(
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Canceled',
+                    style: TextStyle(
+                      color: Colors.grey,
+                    )),
+              ), // Specific color for this tab
+            ),
+          ],
+          indicatorColor: tabColor,
         ),
-      ],
+      ),
+      body: Consumer4<ChatUserProvider, GetServiceRequest, ServiceProvider,
+          LoginLogoutProvider>(
+        builder: (context, chatUserProvider, getServiceRequest, serviceProvider,
+            loginLogoutProvider, child) {
+          final userData = chatUserProvider.users;
+          final requestData = getServiceRequest.serviceRequests;
+          final serviceData = serviceProvider.service;
+          final token = loginLogoutProvider.token;
+
+          Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
+          final id = decodedToken['id'];
+
+          List getFilteredRequests(String status) {
+            return requestData
+                .where((request) =>
+                    request['ProviderId'] == id && request['Status'] == status)
+                .toList();
+          }
+
+          return TabBarView(
+            controller: _tabController,
+            children: [
+              RequestList(
+                  requests: getFilteredRequests('pending'),
+                  status: 'pending',
+                  userData: userData,
+                  serviceData: serviceData),
+              RequestList(
+                  requests: getFilteredRequests('accepted'),
+                  status: 'accepted',
+                  userData: userData,
+                  serviceData: serviceData),
+              RequestList(
+                  requests: getFilteredRequests('completed'),
+                  status: 'completed',
+                  userData: userData,
+                  serviceData: serviceData),
+              RequestList(
+                  requests: getFilteredRequests('rejected'),
+                  status: 'rejected',
+                  userData: userData,
+                  serviceData: serviceData),
+              RequestList(
+                  requests: getFilteredRequests('cancelled'),
+                  status: 'cancelled',
+                  userData: userData,
+                  serviceData: serviceData),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+class RequestList extends StatelessWidget {
+  final List requests;
+  final String status;
+  final List userData;
+  final List serviceData;
+
+  const RequestList({
+    Key? key,
+    required this.requests,
+    required this.status,
+    required this.userData,
+    required this.serviceData,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return requests.isEmpty
+        ? Center(child: Text('No $status requests'))
+        : ListView.builder(
+            itemCount: requests.length,
+            itemBuilder: (context, index) => RequestCard(
+              request: requests[index],
+              userData: userData,
+              serviceData: serviceData,
+            ),
+          );
+  }
+}
+
+class RequestCard extends StatelessWidget {
+  final Map<String, dynamic> request;
+  final List userData;
+  final List serviceData;
+
+  const RequestCard({
+    Key? key,
+    required this.request,
+    required this.userData,
+    required this.serviceData,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final user = userData.firstWhere(
+      (user) => user['_id'] == request['UserId'],
+      orElse: () => {'Name': 'Unknown'},
+    );
+    final service = serviceData.firstWhere(
+      (service) => service['_id'] == request['ServiceId'],
+      orElse: () => {'Name': 'Unknown'},
+    );
+
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('User: ${user['Name']}',
+                style: Theme.of(context).textTheme.subtitle1),
+            Text('Service: ${service['Name']}',
+                style: Theme.of(context).textTheme.subtitle1),
+            Text('Status: ${request['Status']}',
+                style: Theme.of(context).textTheme.subtitle2),
+            Text(
+              'Created: ${DateFormat('MMM d h:mm a').format(DateTime.parse(request['updatedAt']).toUtc().add(Duration(hours: 5, minutes: 45)))}',
+              style: Theme.of(context).textTheme.subtitle2,
+            ),
+            if (request['Status'] == 'pending')
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  ElevatedButton(
+                    onPressed: () => _showConfirmationDialog(
+                        context, 'Accept', request['_id']),
+                    child: const Text('Accept'),
+                  ),
+                  ElevatedButton(
+                    onPressed: () => _showConfirmationDialog(
+                        context, 'Reject', request['_id']),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                    child: const Text('Reject'),
+                  ),
+                ],
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showConfirmationDialog(
+      BuildContext context, String action, String requestId) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('$action Request'),
+        content: Text('Are you sure you want to $action this request?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              final getServiceRequest =
+                  Provider.of<GetServiceRequest>(context, listen: false);
+              if (action == 'Accept') {
+                await getServiceRequest.acceptRequest(context, requestId);
+              } else {
+                await getServiceRequest.rejectRequest(context, requestId);
+              }
+              Navigator.pop(context);
+            },
+            child: Text(action),
+          ),
+        ],
+      ),
     );
   }
 }

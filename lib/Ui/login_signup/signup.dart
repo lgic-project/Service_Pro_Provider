@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
-import 'package:service_pro_provider/Provider/category_provider/service_provider.dart';
+import 'package:service_pro_provider/Provider/service_provider/service_provider.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:service_pro_provider/Provider/login_signup_provider/signup_provider.dart';

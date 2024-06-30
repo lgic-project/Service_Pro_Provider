@@ -4,8 +4,12 @@ import 'package:service_pro_provider/Admin%20Panel/manage_category.dart';
 import 'package:service_pro_provider/Admin%20Panel/admin_home.dart';
 import 'package:service_pro_provider/Provider/category_provider/category_provider.dart';
 import 'package:service_pro_provider/Provider/category_provider/put_category_provider.dart';
-import 'package:service_pro_provider/Provider/category_provider/service_provider.dart';
+import 'package:service_pro_provider/Provider/profile_provider/add_remove_service_provider.dart';
+import 'package:service_pro_provider/Provider/rating_and_reviews/get_reviews_provider.dart';
+import 'package:service_pro_provider/Provider/service_provider/put_service_provider.dart';
+import 'package:service_pro_provider/Provider/service_provider/service_provider.dart';
 import 'package:service_pro_provider/Provider/chat_user_provider.dart';
+import 'package:service_pro_provider/Provider/deactivate_user_provider.dart';
 import 'package:service_pro_provider/Provider/get_service_request.dart';
 import 'package:service_pro_provider/Provider/login_signup_provider/signup_provider.dart';
 import 'package:service_pro_provider/Provider/profile_provider.dart';
@@ -41,8 +45,12 @@ class _MyAppState extends State<MyApp> {
         ChangeNotifierProvider(create: (_) => ServiceProvider()),
         ChangeNotifierProvider(create: (_) => GetServiceRequest()),
         ChangeNotifierProvider(create: (_) => UpdateCategory()),
+        ChangeNotifierProvider(create: (_) => UpdateService()),
         ChangeNotifierProvider(create: (_) => VerifyAccount()),
         ChangeNotifierProvider(create: (_) => SignUpProvider()),
+        ChangeNotifierProvider(create: (_) => DeleteUser()),
+        ChangeNotifierProvider(create: (_) => GetReviewsProvider()),
+        ChangeNotifierProvider(create: (_) => ServiceManage()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

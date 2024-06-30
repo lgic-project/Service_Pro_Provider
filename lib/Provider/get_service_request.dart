@@ -66,7 +66,7 @@ class GetServiceRequest with ChangeNotifier {
         Provider.of<LoginLogoutProvider>(context, listen: false).token;
     try {
       final response = await http.post(
-          Uri.parse('http://20.52.185.247:8000/request/accept/$id'),
+          Uri.parse('http://20.52.185.247:8000/request/reject/$id'),
           headers: {
             'Authorization': 'Bearer $token',
           },

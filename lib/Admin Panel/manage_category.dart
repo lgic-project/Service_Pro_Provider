@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
@@ -17,10 +20,9 @@ class ManageCategory extends StatefulWidget {
 
 class _ManageCategoryState extends State<ManageCategory> {
   final ImagePicker _picker = ImagePicker();
-  String? _compressedImageUrl;
+  String? _tempImagePath;
 
-  Future<void> _pickAndCompressImage(
-      BuildContext context, String categoryId) async {
+  Future<void> _pickImage(BuildContext context) async {
     final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
@@ -34,21 +36,19 @@ class _ManageCategoryState extends State<ManageCategory> {
       );
 
       if (compressedFile != null) {
-        final imageUrl =
-            await Provider.of<UpdateCategory>(context, listen: false)
-                .uploadCategoryImage(context, compressedFile.path);
-        if (imageUrl != null) {
-          setState(() {
-            _compressedImageUrl = imageUrl;
-            print('Compressed and uploaded image URL: $_compressedImageUrl');
-          });
-        } else {
-          print('Image upload failed');
-        }
+        setState(() {
+          _tempImagePath = compressedFile.path; // Ensure this path is correct
+        });
       } else {
         print('Image compression failed');
       }
     }
+  }
+
+  Future<String?> _uploadImage(BuildContext context, String imagePath) async {
+    final imageUrl = await Provider.of<UpdateCategory>(context, listen: false)
+        .uploadCategoryImage(context, imagePath);
+    return imageUrl;
   }
 
   @override
@@ -88,7 +88,7 @@ class _ManageCategoryState extends State<ManageCategory> {
           IconButton(
             onPressed: () async {
               setState(() {
-                _compressedImageUrl = null;
+                _tempImagePath = null;
               });
               await _showAddCategoryDialog(context);
             },
@@ -107,73 +107,88 @@ class _ManageCategoryState extends State<ManageCategory> {
     return await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Add Category'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    name = value!;
-                  },
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Add Category'),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      decoration: const InputDecoration(labelText: 'Name'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a name';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        name = value!;
+                      },
+                    ),
+                    TextFormField(
+                      decoration:
+                          const InputDecoration(labelText: 'Description'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        description = value!;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    if (_tempImagePath != null)
+                      Image.file(
+                        File(_tempImagePath!),
+                        width: 100,
+                        height: 100,
+                      ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _pickImage(context);
+                        setState(() {}); // Update the dialog's state
+                      },
+                      child: const Text('Pick Image'),
+                    ),
+                  ],
                 ),
-                TextFormField(
-                  decoration: const InputDecoration(labelText: 'Description'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a description';
-                    }
-                    return null;
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
                   },
-                  onSaved: (value) {
-                    description = value!;
-                  },
+                  child: const Text('Cancel'),
                 ),
-                const SizedBox(height: 10),
-                if (_compressedImageUrl != null)
-                  Image.network(
-                    _compressedImageUrl!,
-                    width: 100,
-                    height: 100,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Lottie.asset('assets/lotties_animation/error.json'),
-                  ),
                 ElevatedButton(
-                  onPressed: () => _pickAndCompressImage(context, ''),
-                  child: const Text('Pick Image'),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+
+                      String? imageUrl;
+                      if (_tempImagePath != null) {
+                        imageUrl = await _uploadImage(context, _tempImagePath!);
+                      }
+
+                      if (imageUrl != null) {
+                        Provider.of<CategoryProvider>(context, listen: false)
+                            .addCategory(context, name, description, imageUrl);
+                        Navigator.of(context).pop();
+                      } else {
+                        print('Image upload failed');
+                      }
+                    }
+                  },
+                  child: const Text('Submit'),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-
-                  Provider.of<CategoryProvider>(context, listen: false)
-                      .addCategory(context, name, description);
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text('Submit'),
-            ),
-          ],
+            );
+          },
         );
       },
     );
@@ -183,13 +198,6 @@ class _ManageCategoryState extends State<ManageCategory> {
     return FutureBuilder(
       future: Provider.of<CategoryProvider>(context).fetchCategories(),
       builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   return const Center(
-        //     child: CircularProgressIndicator(),
-        //   );
-        // } else if (snapshot.error != null) {
-        //   return const Center(child: Text('An error occurred!'));
-        // } else {
         final data = Provider.of<CategoryProvider>(context, listen: false).data;
         return Expanded(
           child: ListView.builder(
@@ -201,11 +209,15 @@ class _ManageCategoryState extends State<ManageCategory> {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 5),
                 child: ListTile(
+                  tileColor: categoryItem['Active'] == false
+                      ? Colors.amber.withOpacity(0.5)
+                      : Colors.blue.withOpacity(0.5),
                   leading: Container(
                     width: 50,
-                    child: Image.network(
-                      image,
-                      errorBuilder: (context, error, stackTrace) =>
+                    child: CachedNetworkImage(
+                      imageUrl: image,
+                      placeholder: (context, url) => Spacer(),
+                      errorWidget: (context, url, error) =>
                           Lottie.asset('assets/lotties_animation/error.json'),
                     ),
                   ),
@@ -217,7 +229,7 @@ class _ManageCategoryState extends State<ManageCategory> {
                       IconButton(
                         onPressed: () async {
                           setState(() {
-                            _compressedImageUrl = null;
+                            _tempImagePath = null;
                           });
                           await _showEditCategoryDialog(context, categoryItem);
                         },
@@ -225,7 +237,54 @@ class _ManageCategoryState extends State<ManageCategory> {
                       ),
                       IconButton(
                         onPressed: () {
-                          // Delete functionality can be added here
+                          showDialog(
+                            context: context,
+                            builder: (context) {
+                              return AlertDialog(
+                                title: const Text('Delete Category'),
+                                content: const Text(
+                                    'Are you sure you want to delete this category?'),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: const Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      bool isSuccess =
+                                          await Provider.of<UpdateCategory>(
+                                                  context,
+                                                  listen: false)
+                                              .updateCategoryActive(
+                                                  context, categoryItem['_id']);
+
+                                      if (isSuccess) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Category deleted successfully!'),
+                                          ),
+                                        );
+                                        Navigator.of(context).pop();
+                                      } else {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(
+                                          const SnackBar(
+                                            content: Text(
+                                                'Category deletion failed.'),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    child: const Text('Delete'),
+                                  ),
+                                ],
+                              );
+                            },
+                          );
                         },
                         icon: const Icon(Icons.delete, color: Colors.redAccent),
                       ),
@@ -236,7 +295,6 @@ class _ManageCategoryState extends State<ManageCategory> {
             },
           ),
         );
-        //}
       },
     );
   }
@@ -245,86 +303,102 @@ class _ManageCategoryState extends State<ManageCategory> {
       BuildContext context, dynamic categoryItem) async {
     final _formKey = GlobalKey<FormState>();
     String updatedName = categoryItem['Name'];
-    String? imageUrl;
+    String? updatedImageUrl = categoryItem['Image'];
 
     return await showDialog(
       context: context,
       builder: (context) {
-        return AlertDialog(
-          title: const Text('Edit Category'),
-          content: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextFormField(
-                  initialValue: categoryItem['Name'],
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a name';
-                    }
-                    return null;
-                  },
-                  onSaved: (value) {
-                    updatedName = value!;
-                  },
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Edit Category'),
+              content: Form(
+                key: _formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      initialValue: categoryItem['Name'],
+                      decoration: const InputDecoration(labelText: 'Name'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a name';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        updatedName = value!;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _pickImage(context);
+                        setState(() {}); // Update the dialog's state
+                      },
+                      child: const Text('Pick Image'),
+                    ),
+                    if (_tempImagePath != null)
+                      Image.file(
+                        File(
+                            _tempImagePath!), // Ensure this widget is correctly placed in the UI tree
+                        width: 100,
+                        height: 100,
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 10),
-                if (_compressedImageUrl != null)
-                  Image.network(
-                    _compressedImageUrl!,
-                    width: 100,
-                    height: 100,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Lottie.asset('assets/lotties_animation/error.json'),
-                  ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    setState(() {
+                      _tempImagePath = null;
+                    });
+                  },
+                  child: const Text('Cancel'),
+                ),
                 ElevatedButton(
-                  onPressed: () =>
-                      _pickAndCompressImage(context, categoryItem['_id']),
-                  child: const Text('Pick Image'),
+                  onPressed: () async {
+                    if (_formKey.currentState!.validate()) {
+                      _formKey.currentState!.save();
+
+                      if (_tempImagePath != null) {
+                        updatedImageUrl =
+                            await _uploadImage(context, _tempImagePath!);
+                      }
+
+                      if (updatedImageUrl != null) {
+                        bool isSuccess = await Provider.of<UpdateCategory>(
+                                context,
+                                listen: false)
+                            .updateCategory(context, categoryItem['_id'],
+                                updatedName, updatedImageUrl!);
+
+                        if (isSuccess) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Category updated successfully!'),
+                            ),
+                          );
+                          Navigator.of(context).pop();
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Category update failed.'),
+                            ),
+                          );
+                        }
+                      } else {
+                        print('Image upload failed');
+                      }
+                    }
+                  },
+                  child: const Text('Update'),
                 ),
               ],
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (_formKey.currentState!.validate()) {
-                  _formKey.currentState!.save();
-                  imageUrl = _compressedImageUrl ?? categoryItem['Image'];
-
-                  bool isSuccess = await Provider.of<UpdateCategory>(context,
-                          listen: false)
-                      .updateCategory(
-                          context, categoryItem['_id'], updatedName, imageUrl!);
-
-                  if (isSuccess) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Category updated successfully!'),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Category update failed.'),
-                      ),
-                    );
-                  }
-
-                  Navigator.of(context).pop();
-                }
-              },
-              child: const Text('Update'),
-            ),
-          ],
+            );
+          },
         );
       },
     );

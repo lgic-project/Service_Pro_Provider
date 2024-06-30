@@ -1,8 +1,11 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:service_pro_provider/Provider/rating_and_reviews/get_reviews_provider.dart';
+import 'package:service_pro_provider/Ui/profile/widget/add_remove_service.dart';
 import '../../Provider/profile_provider.dart';
 import '../../Provider/login_signup_provider/login_logout_provider.dart';
 
@@ -12,16 +15,62 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
+  double averageRating = 0.0;
+
   @override
   void initState() {
     super.initState();
-    Provider.of<ProfileProvider>(context, listen: false).userProfile(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Provider.of<ProfileProvider>(context, listen: false)
+          .userProfile(context);
+      await showReviews(context);
+    });
+  }
+
+  Future<void> showReviews(BuildContext context) async {
+    final id = Provider.of<ProfileProvider>(context, listen: false).data['_id'];
+    if (id == null) {
+      print('Profile ID is null');
+      return;
+    }
+
+    final reviewsProvider =
+        Provider.of<GetReviewsProvider>(context, listen: false);
+    await reviewsProvider.getReviews(context, id);
+    setState(() {
+      averageRating = calculateAverageRating(reviewsProvider.getreviews);
+    });
+    print('Reviews: ${reviewsProvider.getreviews}');
+  }
+
+  double calculateAverageRating(List reviews) {
+    if (reviews.isEmpty) return 0.0;
+    double sum = reviews.fold(0, (prev, review) => prev + review['Rating']);
+    return sum / reviews.length;
+  }
+
+  List<Widget> buildStarWidgets(double rating, double size) {
+    List<Widget> stars = [];
+    for (int i = 1; i <= 5; i++) {
+      stars.add(Icon(
+        Icons.star,
+        color: i <= rating ? Colors.amber : Colors.grey,
+        size: size,
+      ));
+    }
+    return stars;
   }
 
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Consumer<ProfileProvider>(builder: (context, profile, child) {
+        if (profile.data == null) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
         Color activeColor = Colors.grey;
         final active = profile.data['Active'];
         if (active == false) {
@@ -30,8 +79,10 @@ class _ProfilePageState extends State<ProfilePage> {
           activeColor = Colors.green;
         }
         var user = profile.data;
-        final profilePic = (user['Image'] ??
+        final profilePic = (user['ProfileImg'] ??
             'https://dudewipes.com/cdn/shop/articles/gigachad.jpg?v=1667928905&width=2048');
+        final List<String> serviceIds = List<String>.from(user['Services']);
+
         return Container(
           color: Colors.grey[200],
           child: Column(
@@ -47,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Container(
                       decoration: BoxDecoration(
@@ -68,6 +119,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     ),
                     const SizedBox(height: 10),
                     Card(
+                      color: Theme.of(context).primaryColor,
                       margin: const EdgeInsets.symmetric(horizontal: 20.0),
                       child: ListTile(
                         title: Text(
@@ -75,27 +127,56 @@ class _ProfilePageState extends State<ProfilePage> {
                           style: const TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
-                            color: Color(0xFF43cbac),
+                            color: Colors.white,
                           ),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Total Services: ${user['ServiceAnalytics']['TotalServices'].toString()}',
+                              'Total Services: ${(user['ServiceAnalytics']?['TotalServices'] ?? 0).toString()}',
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF43cbac),
+                                color: Colors.white,
                               ),
                             ),
                             Text(
-                              'Completed Services: ${user['ServiceAnalytics']['CompletedServices'].toString()}',
+                              'Completed Services: ${(user['ServiceAnalytics']?['CompletedServices'] ?? 0).toString()}',
                               style: const TextStyle(
                                 fontSize: 16,
-                                color: Color(0xFF43cbac),
+                                color: Colors.white,
                               ),
                             ),
                           ],
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: SizedBox(
+                        width: double.maxFinite,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).primaryColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => AddRemoveService(
+                                  selectedServiceIds: serviceIds,
+                                ),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Manage your Services',
+                            style: TextStyle(fontSize: 18),
+                          ),
                         ),
                       ),
                     ),
@@ -105,55 +186,94 @@ class _ProfilePageState extends State<ProfilePage> {
               Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const Align(
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Rating and Reviews',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Align(
-                      alignment: Alignment.center,
-                      child: RatingBarIndicator(
-                        rating: 4, // replace with your provider rating
-                        itemBuilder: (context, index) => const Icon(
-                          Icons.star,
-                          color: Colors.yellow,
-                        ),
-                        itemCount: 5,
-                        itemSize: 40.0,
-                        direction: Axis.horizontal,
-                      ),
-                    ),
                     const SizedBox(height: 24),
-                    Container(
-                      height: 200, // adjust this value as needed
-                      child: ListView.builder(
-                        itemCount:
-                            4, // replace with your list of reviews length
-                        itemBuilder: (context, index) {
-                          return Card(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10.0),
-                            ),
-                            margin: const EdgeInsets.all(10.0),
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: ListTile(
-                                title: Text(
-                                    'Great job, keep doing'), // replace with your provider review
-                              ),
-                            ),
-                          );
-                        },
+                    const Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text(
+                        'Ratings & Reviews',
+                        style: TextStyle(
+                            fontSize: 24.0, fontWeight: FontWeight.bold),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        children: [
+                          Text(
+                            '${averageRating.toStringAsFixed(1)}',
+                            style: TextStyle(
+                                fontSize: 25.0,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.amber),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: buildStarWidgets(averageRating, 35),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Divider(),
+                    Consumer<GetReviewsProvider>(
+                      builder: (context, reviewsProvider, child) {
+                        final reviews = reviewsProvider.getreviews;
+                        if (reviews.isEmpty) {
+                          return Center(child: Text('No reviews yet'));
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: reviews.length,
+                          itemBuilder: (context, index) {
+                            return Card(
+                              color: const Color(0xFF43cbac),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15.0),
+                              ),
+                              elevation: 3.0,
+                              margin: const EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 16.0),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                    backgroundImage: CachedNetworkImageProvider(
+                                        reviews[index]['UserId']
+                                                ['ProfileImg'] ??
+                                            'https://dudewipes.com/cdn/shop/articles/gigachad.jpg?v=1667928905&width=2048')),
+                                title: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(reviews[index]['UserId']['Name'],
+                                        style: TextStyle(color: Colors.white)),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      children: buildStarWidgets(
+                                          reviews[index]['Rating'].toDouble(),
+                                          15),
+                                    ),
+                                  ],
+                                ),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Service: ${reviews[index]['ServiceId']['Name']}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                    Text(
+                                      'Comment: ${reviews[index]['Comment']}',
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      },
+                    )
                   ],
                 ),
               ),
