@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:service_pro_provider/Provider/service_provider/service_provider.dart';
@@ -133,27 +135,32 @@ class _HomeScreenState extends State<HomeScreen>
                   requests: getFilteredRequests('pending'),
                   status: 'pending',
                   userData: userData,
-                  serviceData: serviceData),
+                  serviceData: serviceData,
+                  fetchData: fetchData),
               RequestList(
                   requests: getFilteredRequests('accepted'),
                   status: 'accepted',
                   userData: userData,
-                  serviceData: serviceData),
+                  serviceData: serviceData,
+                  fetchData: fetchData),
               RequestList(
                   requests: getFilteredRequests('completed'),
                   status: 'completed',
                   userData: userData,
-                  serviceData: serviceData),
+                  serviceData: serviceData,
+                  fetchData: fetchData),
               RequestList(
                   requests: getFilteredRequests('rejected'),
                   status: 'rejected',
                   userData: userData,
-                  serviceData: serviceData),
+                  serviceData: serviceData,
+                  fetchData: fetchData),
               RequestList(
                   requests: getFilteredRequests('cancelled'),
                   status: 'cancelled',
                   userData: userData,
-                  serviceData: serviceData),
+                  serviceData: serviceData,
+                  fetchData: fetchData),
             ],
           );
         },
@@ -167,6 +174,7 @@ class RequestList extends StatelessWidget {
   final String status;
   final List userData;
   final List serviceData;
+  final Future<void> Function() fetchData;
 
   const RequestList({
     Key? key,
@@ -174,20 +182,24 @@ class RequestList extends StatelessWidget {
     required this.status,
     required this.userData,
     required this.serviceData,
+    required this.fetchData,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return requests.isEmpty
-        ? Center(child: Text('No $status requests'))
-        : ListView.builder(
-            itemCount: requests.length,
-            itemBuilder: (context, index) => RequestCard(
-              request: requests[index],
-              userData: userData,
-              serviceData: serviceData,
+    return RefreshIndicator(
+      onRefresh: fetchData,
+      child: requests.isEmpty
+          ? Center(child: Text('No $status requests'))
+          : ListView.builder(
+              itemCount: requests.length,
+              itemBuilder: (context, index) => RequestCard(
+                request: requests[index],
+                userData: userData,
+                serviceData: serviceData,
+              ),
             ),
-          );
+    );
   }
 }
 
@@ -221,31 +233,75 @@ class RequestCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('User: ${user['Name']}',
-                style: Theme.of(context).textTheme.subtitle1),
-            Text('Service: ${service['Name']}',
-                style: Theme.of(context).textTheme.subtitle1),
-            Text('Status: ${request['Status']}',
-                style: Theme.of(context).textTheme.subtitle2),
-            Text(
-              'Created: ${DateFormat('MMM d h:mm a').format(DateTime.parse(request['updatedAt']).toUtc().add(Duration(hours: 5, minutes: 45)))}',
-              style: Theme.of(context).textTheme.subtitle2,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('User: ${user['Name']}',
+                        style: Theme.of(context).textTheme.subtitle1),
+                    Text('Service: ${service['Name']}',
+                        style: Theme.of(context).textTheme.subtitle1),
+                    Text('Address: ${user['Address']}',
+                        style: Theme.of(context).textTheme.subtitle2),
+                    Text(
+                      DateFormat('MMM d h:mm a').format(
+                          DateTime.parse(request['updatedAt'])
+                              .toUtc()
+                              .add(Duration(hours: 5, minutes: 45))),
+                      style: Theme.of(context).textTheme.subtitle2,
+                    ),
+                  ],
+                ),
+                InkWell(
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) {
+                      return Scaffold(
+                        appBar: AppBar(),
+                        body: Center(
+                          child: CachedNetworkImage(
+                            fit: BoxFit.contain,
+                            imageUrl: request['Image'] ?? ''.toString(),
+                          ),
+                        ),
+                      );
+                    }));
+                  },
+                  child: Container(
+                    width: 70,
+                    height: 70,
+                    child: CachedNetworkImage(
+                      fit: BoxFit.cover,
+                      imageUrl: request['Image'].toString(),
+                    ),
+                  ),
+                )
+              ],
             ),
             if (request['Status'] == 'pending')
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).primaryColor),
                     onPressed: () => _showConfirmationDialog(
                         context, 'Accept', request['_id']),
-                    child: const Text('Accept'),
+                    child: const Text(
+                      'Accept',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                   ElevatedButton(
                     onPressed: () => _showConfirmationDialog(
                         context, 'Reject', request['_id']),
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: const Text('Reject'),
+                    child: const Text(
+                      'Reject',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ],
               ),
