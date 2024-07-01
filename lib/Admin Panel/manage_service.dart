@@ -337,76 +337,80 @@ class _ManageServiceState extends State<ManageService> {
             title: const Text('Edit Service'),
             content: Form(
               key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    initialValue: categoryItem['Name'],
-                    decoration: const InputDecoration(labelText: 'Name'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a name';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      updatedName = value!;
-                    },
-                  ),
-                  TextFormField(
-                    initialValue: categoryItem['Description'],
-                    decoration: const InputDecoration(labelText: 'Description'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a description';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      updatedDescription = value!;
-                    },
-                  ),
-                  TextFormField(
-                    initialValue: categoryItem['Price'],
-                    decoration: const InputDecoration(labelText: 'Price'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a description';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      updatedDescription = value!;
-                    },
-                  ),
-                  TextFormField(
-                    initialValue: categoryItem['Duration'],
-                    decoration: const InputDecoration(labelText: 'Duration'),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter a description';
-                      }
-                      return null;
-                    },
-                    onSaved: (value) {
-                      updatedDescription = value!;
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  if (_compressedImagePath != null)
-                    Image.file(
-                      File(_compressedImagePath!),
-                      width: 100,
-                      height: 100,
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextFormField(
+                      initialValue: categoryItem['Name'],
+                      decoration: const InputDecoration(labelText: 'Name'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a name';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        updatedName = value!;
+                      },
                     ),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await _pickAndCompressImage();
-                      setState(() {});
-                    },
-                    child: const Text('Pick Image'),
-                  ),
-                ],
+                    TextFormField(
+                      initialValue: categoryItem['Description'],
+                      decoration: const InputDecoration(labelText: 'Description'),
+                      maxLines: null, // Allows the input to expand vertically
+                      keyboardType: TextInputType.multiline,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        updatedDescription = value!;
+                      },
+                    ),
+                    TextFormField(
+                      initialValue: categoryItem['Price'].toString(),
+                      decoration: const InputDecoration(labelText: 'Price'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        updatedDescription = value!;
+                      },
+                    ),
+                    TextFormField(
+                      initialValue: categoryItem['Duration'],
+                      decoration: const InputDecoration(labelText: 'Duration'),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please enter a description';
+                        }
+                        return null;
+                      },
+                      onSaved: (value) {
+                        updatedDescription = value!;
+                      },
+                    ),
+                    const SizedBox(height: 10),
+                    if (_compressedImagePath != null)
+                      Image.file(
+                        File(_compressedImagePath!),
+                        width: 100,
+                        height: 100,
+                      ),
+                    ElevatedButton(
+                      onPressed: () async {
+                        await _pickAndCompressImage();
+                        setState(() {});
+                      },
+                      child: const Text('Pick Image'),
+                    ),
+                  ],
+                ),
               ),
             ),
             actions: [

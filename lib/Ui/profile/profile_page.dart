@@ -81,7 +81,8 @@ class _ProfilePageState extends State<ProfilePage> {
         var user = profile.data;
         final profilePic = (user['ProfileImg'] ??
             'https://dudewipes.com/cdn/shop/articles/gigachad.jpg?v=1667928905&width=2048');
-        final List<String> serviceIds = List<String>.from(user['Services']);
+        final List<String> serviceIds =
+            user['Services'] != null ? List<String>.from(user['Services']) : [];
 
         return Container(
           color: Colors.grey[200],

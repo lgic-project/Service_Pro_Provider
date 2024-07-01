@@ -23,7 +23,12 @@ class _ManageUsersState extends State<ManageUsers> {
   @override
   void initState() {
     super.initState();
-    Provider.of<ChatUserProvider>(context, listen: false).getChatUser(context);
+    _fetchUsers();
+  }
+
+  Future<void> _fetchUsers() async {
+    await Provider.of<ChatUserProvider>(context, listen: false)
+        .getChatUser(context);
   }
 
   @override
@@ -122,133 +127,88 @@ class _ManageUsersState extends State<ManageUsers> {
           ),
           SizedBox(height: 16),
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredUsers.length,
-              itemBuilder: (context, index) {
-                Color verifyButtonColor =
-                    filteredUsers[index]['Verified'] == true
-                        ? Colors.blue
-                        : Colors.orange;
+            child: RefreshIndicator(
+              onRefresh: _fetchUsers,
+              child: ListView.builder(
+                itemCount: filteredUsers.length,
+                itemBuilder: (context, index) {
+                  Color verifyButtonColor =
+                      filteredUsers[index]['Verified'] == true
+                          ? Colors.blue
+                          : Colors.orange;
 
-                return GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => UserDetailsScreen(
-                            name: filteredUsers[index]['Name'] ?? '',
-                            user: filteredUsers[index]['Documents'] ?? []),
-                      ),
-                    );
-                  },
-                  child: Card(
-                    elevation: 3,
-                    margin: EdgeInsets.symmetric(vertical: 8),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundImage: NetworkImage(filteredUsers[index]
-                                ['ProfileImg'] ??
-                            'https://qph.cf2.quoracdn.net/main-qimg-45522400d2414ea1f59c13bd04663089'),
-                      ),
-                      title: Text(
-                        filteredUsers[index]['Name'].toString(),
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => UserDetailsScreen(
+                              name: filteredUsers[index]['Name'] ?? '',
+                              user: filteredUsers[index]['Documents'] ?? []),
                         ),
-                      ),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Email: ${filteredUsers[index]['Email'].toString()}',
-                            style: TextStyle(fontSize: 14),
+                      );
+                    },
+                    child: Card(
+                      elevation: 3,
+                      margin: EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          backgroundImage: NetworkImage(filteredUsers[index]
+                                  ['ProfileImg'] ??
+                              'https://qph.cf2.quoracdn.net/main-qimg-45522400d2414ea1f59c13bd04663089'),
+                        ),
+                        title: Text(
+                          filteredUsers[index]['Name'].toString(),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
                           ),
-                          Text(
-                            'Verified: ${filteredUsers[index]['Verified'].toString()}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            'Active: ${filteredUsers[index]['Active'].toString()}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            'Role: ${filteredUsers[index]['Role'].toString()}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            'Created: ${DateFormat('MMMM d, y').format(DateTime.parse(filteredUsers[index]['createdAt']))}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                          Text(
-                            'Modified: ${DateFormat('MMMM d, y').format(DateTime.parse(filteredUsers[index]['updatedAt']))}',
-                            style: TextStyle(fontSize: 14),
-                          ),
-                        ],
-                      ),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: IconButton(
-                              icon: Icon(Icons.verified,
-                                  color: verifyButtonColor),
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) {
-                                    return AlertDialog(
-                                      title: Text(
-                                          'Verify  ${filteredUsers[index]['Name'].toString()}'),
-                                      content: Text(
-                                          'Are you sure you want to verify this account?'),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Text('Cancel'),
-                                        ),
-                                        TextButton(
-                                          onPressed: () async {
-                                            try {
-                                              await Provider.of<VerifyAccount>(
-                                                      context,
-                                                      listen: false)
-                                                  .verifyAccount(
-                                                context,
-                                                filteredUsers[index]['_id']
-                                                    .toString(),
-                                              );
-                                              setState(
-                                                  () {}); // Refresh UI after verification
-                                              Navigator.pop(context);
-                                            } catch (e) {
-                                              print('Verification error: $e');
-                                              Navigator.pop(context);
-                                            }
-                                          },
-                                          child: Text('Verify'),
-                                        ),
-                                      ],
-                                    );
-                                  },
-                                );
-                              },
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Email: ${filteredUsers[index]['Email'].toString()}',
+                              style: TextStyle(fontSize: 14),
                             ),
-                          ),
-                          Expanded(
-                            child: IconButton(
-                              icon: Icon(Icons.delete, color: Colors.red),
-                              onPressed: () {
-                                showDialog(
+                            Text(
+                              'Verified: ${filteredUsers[index]['Verified'].toString()}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              'Active: ${filteredUsers[index]['Active'].toString()}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              'Role: ${filteredUsers[index]['Role'].toString()}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              'Created: ${DateFormat('MMMM d, y').format(DateTime.parse(filteredUsers[index]['createdAt']))}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              'Modified: ${DateFormat('MMMM d, y').format(DateTime.parse(filteredUsers[index]['updatedAt']))}',
+                              style: TextStyle(fontSize: 14),
+                            ),
+                          ],
+                        ),
+                        trailing: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: IconButton(
+                                icon: Icon(Icons.verified,
+                                    color: verifyButtonColor),
+                                onPressed: () {
+                                  showDialog(
                                     context: context,
                                     builder: (context) {
                                       return AlertDialog(
                                         title: Text(
-                                            'Delete  ${filteredUsers[index]['Name'].toString()}'),
+                                            'Verify  ${filteredUsers[index]['Name'].toString()}'),
                                         content: Text(
-                                            'Are you sure you want to delete this account?'),
+                                            'Are you sure you want to verify this account?'),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
@@ -259,36 +219,85 @@ class _ManageUsersState extends State<ManageUsers> {
                                           TextButton(
                                             onPressed: () async {
                                               try {
-                                                await Provider.of<DeleteUser>(
+                                                await Provider.of<
+                                                            VerifyAccount>(
                                                         context,
                                                         listen: false)
-                                                    .deleteUser(
+                                                    .verifyAccount(
                                                   context,
                                                   filteredUsers[index]['_id']
                                                       .toString(),
                                                 );
                                                 setState(
-                                                    () {}); // Refresh UI after deletion
+                                                    () {}); // Refresh UI after verification
                                                 Navigator.pop(context);
                                               } catch (e) {
-                                                print('Deletion error: $e');
+                                                print('Verification error: $e');
                                                 Navigator.pop(context);
                                               }
                                             },
-                                            child: Text('Delete'),
+                                            child: Text('Verify'),
                                           ),
                                         ],
                                       );
-                                    });
-                              },
+                                    },
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
+                            Expanded(
+                              child: IconButton(
+                                icon: Icon(Icons.delete, color: Colors.red),
+                                onPressed: () {
+                                  showDialog(
+                                      context: context,
+                                      builder: (context) {
+                                        return AlertDialog(
+                                          title: Text(
+                                              'Delete  ${filteredUsers[index]['Name'].toString()}'),
+                                          content: Text(
+                                              'Are you sure you want to delete this account?'),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                              child: Text('Cancel'),
+                                            ),
+                                            TextButton(
+                                              onPressed: () async {
+                                                try {
+                                                  await Provider.of<DeleteUser>(
+                                                          context,
+                                                          listen: false)
+                                                      .deleteUser(
+                                                    context,
+                                                    filteredUsers[index]['_id']
+                                                        .toString(),
+                                                  );
+                                                  setState(
+                                                      () {}); // Refresh UI after deletion
+                                                  Navigator.pop(context);
+                                                } catch (e) {
+                                                  print('Deletion error: $e');
+                                                  Navigator.pop(context);
+                                                }
+                                              },
+                                              child: Text('Delete'),
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ],
