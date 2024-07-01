@@ -15,9 +15,11 @@ class ChatUserProvider with ChangeNotifier {
     final response = await http
         .get(Uri.parse('http://20.52.185.247:8000/message/userList'), headers: {
       'Content-Type': 'application /json; charset=UTF-8',
-      'Authorization': 'Bearer $token'
+      'Authorization':
+          'Bearer $token' //server baata token vitra ko role user ho vani user ko role dinxa nai tyo user ma provider ko data dhekauxa and vice versa
     });
     if (response.statusCode == 200) {
+      //200 xa vani tya vitra ko data response body ma aauxu
       users = jsonDecode(response.body)['users'];
       notifyListeners();
     } else {

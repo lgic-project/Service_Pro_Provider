@@ -218,7 +218,10 @@ class RequestCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = userData.firstWhere(
-      (user) => user['_id'] == request['UserId'],
+      (user) =>
+          user['_id'] ==
+          request[
+              'UserId'], //request ma vako user id ra user ma vako user id match hunxa vani user ko data pathauni natra unknown dhekauni
       orElse: () => {'Name': 'Unknown'},
     );
     final service = serviceData.firstWhere(
@@ -239,18 +242,20 @@ class RequestCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('User: ${user['Name']}',
-                        style: Theme.of(context).textTheme.subtitle1),
-                    Text('Service: ${service['Name']}',
-                        style: Theme.of(context).textTheme.subtitle1),
-                    Text('Address: ${user['Address']}',
-                        style: Theme.of(context).textTheme.subtitle2),
                     Text(
-                      DateFormat('MMM d h:mm a').format(
-                          DateTime.parse(request['updatedAt'])
-                              .toUtc()
-                              .add(Duration(hours: 5, minutes: 45))),
-                      style: Theme.of(context).textTheme.subtitle2,
+                      'User: ${user['Name']}',
+                    ),
+                    Text(
+                      'Service: ${service['Name']}',
+                    ),
+                    Text(
+                      'Address: ${user['Address']}',
+                    ),
+                    Text(
+                      DateFormat('MMM d h:mm a').format(DateTime.parse(request[
+                              'updatedAt']) //kaile request pathako tesko time haru mention gareko ho
+                          .toUtc()
+                          .add(Duration(hours: 5, minutes: 45))),
                     ),
                   ],
                 ),
@@ -317,7 +322,8 @@ class RequestCard extends StatelessWidget {
       context: context,
       builder: (context) => AlertDialog(
         title: Text('$action Request'),
-        content: Text('Are you sure you want to $action this request?'),
+        content: Text(
+            'Are you sure you want to $action this request?'), //action var ma accept or reject store vaxa
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

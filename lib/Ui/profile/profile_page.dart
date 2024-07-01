@@ -19,6 +19,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   void initState() {
+    //yo page kholda yaa vako API lai load garni data haru pailai dhekaidinxa
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Provider.of<ProfileProvider>(context, listen: false)

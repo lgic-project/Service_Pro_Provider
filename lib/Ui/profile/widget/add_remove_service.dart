@@ -120,7 +120,8 @@ class _AddRemoveServiceState extends State<AddRemoveService> {
                     },
                   ),
                   trailing: Container(
-                    child: Image.network(image, width: 50, height: 50),
+                    child: Image.network(image,
+                        width: 50, height: 50), //network baata image taanxa
                   ),
                 );
               },
